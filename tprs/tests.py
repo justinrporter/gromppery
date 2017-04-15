@@ -75,5 +75,4 @@ class ViewTests(APITestCase):
         self.assertEqual(Project.objects.first().name, 'myh7')
 
         response = self.client.get(reverse('project-list'))
-        print(response.content)
-        self.assertEqual(len(response.content), 1)
+        self.assertEqual(len(response.data['results']), 1)
