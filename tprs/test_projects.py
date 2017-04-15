@@ -27,7 +27,7 @@ def check_tpr(data):
 
 # doesn't create any files, so just operate out of the root for /testdata/
 @override_settings(MEDIA_ROOT=os.path.join(settings.BASE_DIR))
-class ProjectTests(APITestCase):
+class ProjectModelTests(APITestCase):
 
     def test_make_tpr(self):
 
@@ -43,7 +43,7 @@ class ProjectTests(APITestCase):
 
 
 @override_settings(MEDIA_ROOT=os.path.join(settings.BASE_DIR, 'test-media'))
-class ViewTests(APITestCase):
+class ProjectViewTests(APITestCase):
 
     def setUp(self):
         shutil.copytree(
