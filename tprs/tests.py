@@ -5,6 +5,7 @@ import shutil
 
 from django.urls import reverse
 from django.conf import settings
+from django.test import override_settings
 
 from rest_framework import status
 from rest_framework.test import APITestCase
@@ -17,13 +18,15 @@ def check_tpr(data):
     with tempfile.NamedTemporaryFile(suffix='.tpr') as f:
         f.write(data)
         subprocess.run(['gmx', 'check',
-                        '-s1', 'testdata/myh7.tpr',
+                        '-s1', os.path.join('testdata/myh7.tpr'),
                         '-s2', f.name],
                        stderr=subprocess.DEVNULL,
                        stdout=subprocess.DEVNULL,
                        check=True)
 
 
+# doesn't create any files, so just operate out of the root for /testdata/
+@override_settings(MEDIA_ROOT=os.path.join(settings.BASE_DIR))
 class ProjectTests(APITestCase):
 
     def test_make_tpr(self):
@@ -39,19 +42,16 @@ class ProjectTests(APITestCase):
         check_tpr(tpr.read())
 
 
+@override_settings(MEDIA_ROOT=os.path.join(settings.BASE_DIR, 'test-media'))
 class ViewTests(APITestCase):
 
     def setUp(self):
-        self.old_mediaroot = settings.MEDIA_ROOT
-        settings.MEDIA_ROOT = os.path.join(settings.BASE_DIR, 'test-media')
-
         shutil.copytree(
-            os.path.join(self.old_mediaroot, 'testdata'),
+            os.path.join(settings.BASE_DIR, 'testdata'),
             os.path.join(settings.MEDIA_ROOT, 'testdata'))
 
     def tearDown(self):
         shutil.rmtree(settings.MEDIA_ROOT)
-        settings.MEDIA_ROOT = self.old_mediaroot
 
     def test_tpr_view(self):
 
@@ -77,9 +77,12 @@ class ViewTests(APITestCase):
 
         data = {
             'name': 'myh7',
-            'mdp': open('testdata/myh7.mdp', 'rb'),
-            'top': open('testdata/myh7.top', 'rb'),
-            'gro': open('testdata/myh7.gro', 'rb'),
+            'mdp': open(os.path.join(settings.MEDIA_ROOT,
+                                     'testdata/myh7.mdp'), 'rb'),
+            'top': open(os.path.join(settings.MEDIA_ROOT,
+                                     'testdata/myh7.top'), 'rb'),
+            'gro': open(os.path.join(settings.MEDIA_ROOT,
+                                     'testdata/myh7.gro'), 'rb'),
             }
 
         response = self.client.post(url, data, format='multipart')
@@ -91,5 +94,3 @@ class ViewTests(APITestCase):
 
         response = self.client.get(reverse('project-list'))
         self.assertEqual(len(response.data['results']), 1)
-
-        Project.objects.first().delete()
