@@ -1,7 +1,10 @@
 import tempfile
 import subprocess
+import os
+import shutil
 
 from django.urls import reverse
+from django.conf import settings
 
 from rest_framework import status
 from rest_framework.test import APITestCase
@@ -37,6 +40,18 @@ class ProjectTests(APITestCase):
 
 
 class ViewTests(APITestCase):
+
+    def setUp(self):
+        self.old_mediaroot = settings.MEDIA_ROOT
+        settings.MEDIA_ROOT = os.path.join(settings.BASE_DIR, 'test-media')
+
+        shutil.copytree(
+            os.path.join(self.old_mediaroot, 'testdata'),
+            os.path.join(settings.MEDIA_ROOT, 'testdata'))
+
+    def tearDown(self):
+        shutil.rmtree(settings.MEDIA_ROOT)
+        settings.MEDIA_ROOT = self.old_mediaroot
 
     def test_tpr_view(self):
 
@@ -76,3 +91,5 @@ class ViewTests(APITestCase):
 
         response = self.client.get(reverse('project-list'))
         self.assertEqual(len(response.data['results']), 1)
+
+        Project.objects.first().delete()

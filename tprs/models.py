@@ -15,9 +15,9 @@ class Project(models.Model):
         ordering = ('created',)
 
     name = models.CharField(max_length=200, primary_key=True)
-    top = models.FileField()
-    mdp = models.FileField()
-    gro = models.FileField()
+    top = models.FileField(upload_to='projects/top')
+    mdp = models.FileField(upload_to='projects/mdp')
+    gro = models.FileField(upload_to='projects/gro')
 
     created = models.DateTimeField(auto_now_add=True)
 
