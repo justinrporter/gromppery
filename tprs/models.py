@@ -53,3 +53,19 @@ class Project(models.Model):
                 tpr = io.BytesIO(f.read())
 
         return tpr
+
+
+class Submission(models.Model):
+
+    class Meta:
+        order = ('created')
+
+    xtc = models.FileField(upload_to='submissions')
+    edr = models.FileField(upload_to='submissions')
+    tpr = models.FileField(upload_to='submissions')
+    gro = models.FileField(upload_to='submissions')
+    log = models.FileField(upload_to='submissions')
+    cpt = models.FileField(upload_to='submissions')
+
+    project = models.ForeignKey(Project)
+    created = models.DateTimeField(auto_now_add=True)

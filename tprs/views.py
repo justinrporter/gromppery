@@ -1,7 +1,7 @@
 from django.http import HttpResponse
 from wsgiref.util import FileWrapper
 
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, detail_route
 from rest_framework import viewsets
 
 from . import seralizers
@@ -22,8 +22,14 @@ def tpr(request, protein):
 
 
 class ProjectViewSet(viewsets.ModelViewSet):
-    """
-    API endpoint that allows users to be viewed or edited.
+    """API endpoint that allows projects to be viewed or edited.
     """
     queryset = models.Project.objects.all()
     serializer_class = seralizers.ProjectSerializer
+
+
+class SubmissionViewSet(viewsets.ModelViewSet):
+    """API endpoint that allows submissions to be viewed or edited.
+    """
+    queryset = models.Submission.objects.all()
+    serializer_class = seralizers.SubmissionSerializer
