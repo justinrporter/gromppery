@@ -1,4 +1,3 @@
-import tempfile
 import io
 import os
 import shutil
@@ -91,6 +90,16 @@ class SubmissionViewTests(APITestCase):
 
         self.good_data['cpt'] = io.BytesIO(
             open("/dev/urandom", "rb").read(1000))
+
+        url = reverse('project-submit', args=('plcg_sh2_wt',))
+        response = self.client.post(url, self.good_data, format='multipart')
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    @override_settings(GROMACS_TIMEOUT=1)
+    def test_unmatched_xtc(self):
+
+        self.good_data['xtc'] = open('testdata/alanine.xtc', 'rb')
 
         url = reverse('project-submit', args=('plcg_sh2_wt',))
         response = self.client.post(url, self.good_data, format='multipart')

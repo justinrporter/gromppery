@@ -1,6 +1,7 @@
 import subprocess
 import tempfile
-from functools import partial
+
+from django.conf import settings
 
 from rest_framework import serializers
 
@@ -31,37 +32,28 @@ def valid_gmx_check(tmpfile, suffix):
 
     if p.returncode != 0:
         raise serializers.ValidationError(
-            "File didn't pass gmx check." + p.stderr.decode('ascii', 'ignore'))
+            "File didn't pass gmx check." +
+            p.stderr.decode('ascii', 'ignore'))
 
 
-def validate_xtc_for_tpr(xtc, tpr):
+def validate_file_for_tpr(flag, file, tpr, timeout=None):
 
-    p = subprocess.run(
-        ['gmx', 'check',
-         '-f', xtc, '-s1', tpr],
-        stderr=subprocess.PIPE, stdout=subprocess.PIPE)
+    if timeout is None:
+        timeout = settings.GROMACS_TIMEOUT
+
+    try:
+        p = subprocess.run(
+            ['gmx', 'check',
+             flag, file, '-s1', tpr], timeout=timeout,
+            stderr=subprocess.STDOUT, stdout=subprocess.PIPE)
+    except subprocess.TimeoutExpired:
+        raise serializers.ValidationError(
+            "Submitted XTC timed out validating with fresh TPR.")
 
     if p.returncode != 0:
-        # print(p.stdout)
-        # print(p.stderr)
         raise serializers.ValidationError(
-            "Submitted TPR failed to validate with old TPR: " +
-            p.stderr.decode('latin'))
-
-
-def validate_matching_tprs(tpr1, tpr2):
-
-    p = subprocess.run(
-        ['gmx', 'check',
-         '-s1', tpr1, '-s2', tpr2],
-        stderr=subprocess.PIPE, stdout=subprocess.PIPE)
-
-    if p.returncode != 0:
-        # print(p.stdout)
-        # print(p.stderr)
-        raise serializers.ValidationError(
-            "Submitted TPR failed to validate with old TPR: " +
-            p.stderr.decode('ascii'))
+            "Submitted XTC failed to validate with fresh TPR: " +
+            p.stdout.decode('ascii'))
 
 
 class ProjectSerializer(serializers.HyperlinkedModelSerializer):
@@ -100,6 +92,12 @@ class SubmissionSerializer(serializers.HyperlinkedModelSerializer):
                 [s2.write(c) for c in data['tpr'].chunks()]
                 s2.flush()
 
-                validate_matching_tprs(s1.name, s2.name)
+                validate_file_for_tpr('-s2', s2.name, s1.name)
+
+            with tempfile.NamedTemporaryFile(suffix='.xtc') as xtc:
+                [xtc.write(c) for c in data['xtc'].chunks()]
+                xtc.flush()
+
+                validate_file_for_tpr('-f', xtc.name, s1.name)
 
         return data

@@ -123,6 +123,8 @@ REST_FRAMEWORK = {
     'PAGE_SIZE': 10
 }
 
+GROMACS_TIMEOUT = 10 # seconds
+
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.10/howto/static-files/
 
