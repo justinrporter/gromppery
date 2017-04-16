@@ -1,8 +1,11 @@
 from django.http import HttpResponse
+from django.urls import reverse
+
 from wsgiref.util import FileWrapper
 
+from rest_framework import viewsets, status
 from rest_framework.decorators import api_view, detail_route
-from rest_framework import viewsets
+from rest_framework.response import Response
 
 from . import seralizers
 from . import models
@@ -26,6 +29,17 @@ class ProjectViewSet(viewsets.ModelViewSet):
     """
     queryset = models.Project.objects.all()
     serializer_class = seralizers.ProjectSerializer
+
+    @detail_route(methods=['post'])
+    def submit(self, request, pk):
+
+        request.data['project'] = reverse('project-detail', args=(pk,))
+        s = seralizers.SubmissionSerializer(data=request.data)
+
+        s.is_valid(raise_exception=True)
+        s.save()
+
+        return Response({}, status=status.HTTP_201_CREATED)
 
 
 class SubmissionViewSet(viewsets.ModelViewSet):

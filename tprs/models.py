@@ -58,7 +58,7 @@ class Project(models.Model):
 class Submission(models.Model):
 
     class Meta:
-        order = ('created')
+        ordering = ('created', )
 
     xtc = models.FileField(upload_to='submissions')
     edr = models.FileField(upload_to='submissions')
@@ -69,3 +69,7 @@ class Submission(models.Model):
 
     project = models.ForeignKey(Project)
     created = models.DateTimeField(auto_now_add=True)
+
+    hostname = models.CharField(
+        max_length=200,
+        help_text='Name of the host that completed this WU')
