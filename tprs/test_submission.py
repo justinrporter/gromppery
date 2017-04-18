@@ -9,6 +9,7 @@ from django.test import override_settings
 from rest_framework import status
 from rest_framework.test import APITestCase
 
+from .seralizers import valid_xtc
 from .models import Project, Submission
 
 
@@ -52,9 +53,11 @@ class SubmissionViewTests(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(Submission.objects.count(), 1)
-        self.assertEqual(Submission.objects.first().project.pk, 'plcg_sh2_wt')
-        self.assertEqual(Submission.objects.first().hostname,
-                         self.good_data['hostname'])
+
+        submission = Submission.objects.first()
+
+        self.assertEqual(submission.project.pk, 'plcg_sh2_wt')
+        self.assertEqual(submission.hostname, self.good_data['hostname'])
 
     def test_submit_bogus_tpr(self):
 

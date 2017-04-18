@@ -25,7 +25,7 @@ router.register(r'tprs', views.ProjectViewSet)
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
-    url(r'^tprs/(?P<protein>[\w-]+).tpr$', views.tpr, name='tpr-generate'),
+    url(r'^api/tprs/(?P<protein>[\w-]+).tpr$', views.tpr, name='tpr-generate'),
     url(r'^api/', include(router.urls)),
     url(r'^api-auth/', include('rest_framework.urls',
                                namespace='rest_framework'))
