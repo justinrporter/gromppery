@@ -21,6 +21,9 @@ class Project(models.Model):
 
     created = models.DateTimeField(auto_now_add=True)
 
+    def __str__(self):
+        return self.name
+
     def grompp(self):
 
         with tempfile.NamedTemporaryFile(suffix=".tpr") as tmp:
