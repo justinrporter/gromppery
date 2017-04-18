@@ -16,6 +16,10 @@
 		},
 		{
 			"path": "../gromppery-pyramid"
-		}
+		},
+		{
+			"folder_exclude_patterns": ["__pycache__"],
+			"path": "../armoir/"
+		},
 	]
 }
