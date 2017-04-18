@@ -1,5 +1,6 @@
 from django.http import HttpResponse
 from django.urls import reverse
+from django.shortcuts import get_object_or_404
 
 from wsgiref.util import FileWrapper
 
@@ -14,7 +15,9 @@ from . import models
 @api_view(['GET'])
 def tpr(request, protein):
 
-    proj = models.Project.objects.get(name=protein)
+    proj = get_object_or_404(
+        models.Project.objects.all(),
+        name=protein)
 
     response = HttpResponse(
         FileWrapper(proj.grompp()),

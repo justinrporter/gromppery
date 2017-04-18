@@ -68,6 +68,19 @@ class ProjectViewTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         check_tpr(response.content)
 
+    def test_nonexistant_tpr_view(self):
+
+        Project.objects.create(
+            name='plcg_sh2_wt',
+            gro='testdata/plcg_sh2_wt.gro',
+            mdp='testdata/plcg_sh2_wt.mdp',
+            top='testdata/plcg_sh2_wt.top')
+
+        url = reverse('tpr-generate', kwargs={'protein': 'asdfasdf'})
+        response = self.client.get(url)
+
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
     def test_create_project(self):
         """
         Ensure we can create a new project.
@@ -94,3 +107,6 @@ class ProjectViewTests(APITestCase):
 
         response = self.client.get(reverse('project-list'))
         self.assertEqual(len(response.data['results']), 1)
+
+        tprdata = Project.objects.first().grompp()
+        self.assertGreater(len(tprdata.read()), 100)
