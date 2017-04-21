@@ -98,6 +98,6 @@ class SubmissionSerializer(serializers.HyperlinkedModelSerializer):
                 [xtc.write(c) for c in data['xtc'].chunks()]
                 xtc.flush()
 
-                validate_file_for_tpr('-f', xtc.name, s1.name)
+                # validate_file_for_tpr('-f', xtc.name, s1.name)
 
         return data
