@@ -90,7 +90,7 @@ class Submission(models.Model):
 
     def align(self, group):
         tpr_data = subset_tpr(self.project.grompp().read(), group)
-        xtc_data = align(self.xtc.name, tpr_data, 'System')
+        xtc_data = align(self.xtc.path, tpr_data, 'System')
 
         aln = Alignment.objects.create(
             submission=self)
