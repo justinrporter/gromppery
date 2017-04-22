@@ -80,7 +80,7 @@ class Submission(models.Model):
         help_text='Name of the host that completed this WU')
 
     def __str__(self):
-        return " ".join([self.project.name, "submission", str(self.index)])
+        return " ".join([self.project.name, "submission", str(self.index())])
 
     def index(self):
         """Return the index of this submission, where the ith submission
@@ -133,9 +133,14 @@ def subset_tpr(tpr_data, group):
 
         p = subprocess.Popen(
             args, stdin=subprocess.PIPE,
-            stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 
-        p.communicate(group.encode('ascii'))
+        output, _ = p.communicate(group.encode('ascii'))
+
+        if p.returncode != 0:
+            print(output.decode('ascii'))
+            raise subprocess.CalledProcessError(
+                p.returncode, args, output=output)
 
         try:
             with open(partial_tpr_name, 'rb') as f:
