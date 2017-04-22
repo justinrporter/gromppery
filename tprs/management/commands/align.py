@@ -10,7 +10,8 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
 
-        subs = Submission.objects.filter(alignment_isnull=True)
+        subs = Submission.objects.filter(alignment__isnull=True)
 
         for sub in subs:
+            print("Aligning", subs)
             sub.align(options['group'])
