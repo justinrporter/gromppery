@@ -11,8 +11,12 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
 
+        self.stdout.write("Aligning all projects to group name " +
+                          options['group'])
         subs = Submission.objects.filter(alignment__isnull=True)
+        self.stdout.write("Found " + str(subs.count()) +
+                          " submissions to align.")
 
         for sub in subs:
-            print("Aligning", sub)
+            self.stdout.write("Aligning " + str(sub))
             sub.align(options['group'])
