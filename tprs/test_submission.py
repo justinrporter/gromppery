@@ -9,7 +9,6 @@ from django.test import override_settings
 from rest_framework import status
 from rest_framework.test import APITestCase
 
-from .seralizers import valid_xtc
 from .models import Project, Submission
 
 
