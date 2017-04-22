@@ -14,5 +14,5 @@ class Command(BaseCommand):
         subs = Submission.objects.filter(alignment__isnull=True)
 
         for sub in subs:
-            print("Aligning", subs)
+            print("Aligning", sub)
             sub.align(options['group'])
