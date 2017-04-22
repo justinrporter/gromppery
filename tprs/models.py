@@ -79,6 +79,9 @@ class Submission(models.Model):
         max_length=200,
         help_text='Name of the host that completed this WU')
 
+    def __str__(self):
+        return " ".join([self.project.name, "submission", str(self.index)])
+
     def index(self):
         """Return the index of this submission, where the ith submission
         for a given project has index i.
