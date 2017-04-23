@@ -86,7 +86,9 @@ class Submission(models.Model):
         """Return the index of this submission, where the ith submission
         for a given project has index i.
         """
-        return Submission.objects.filter(created__gt=self.created).count()
+        return Submission.objects.filter(
+            project=self.project,
+            created__lt=self.created).count()
 
     def align(self, group):
         tpr_data = subset_tpr(self.project.grompp().read(), group)
