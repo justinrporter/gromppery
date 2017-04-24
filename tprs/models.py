@@ -118,6 +118,9 @@ class Alignment(models.Model):
     submission = models.OneToOneField(Submission)
     created = models.DateTimeField(auto_now_add=True)
 
+    def __str__(self):
+        return "Alignment of %s" % self.submission
+
 
 def subset_tpr(tpr_data, group):
 
