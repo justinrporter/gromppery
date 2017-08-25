@@ -91,11 +91,20 @@ class Submission(models.Model):
             created__lt=self.created).count()
 
     def align(self, group):
+
         tpr_data = subset_tpr(self.project.grompp().read(), group)
         xtc_data = align(self.xtc.path, tpr_data, 'System')
 
+        prev_aln = Alignment.objects.filter(
+            project__name=self.project.name).first()
+
+        if prev_aln:
+            pdb = prev_aln.pdb
+        else:
+
+
         aln = Alignment.objects.create(
-            submission=self)
+            submission=self, pdb=pdb)
 
         fname = '{p}-{i:03d}.xtc'.format(p=self.project.name, i=self.index())
         aln.xtc.save(
@@ -110,6 +119,10 @@ class Alignment(models.Model):
     class Meta:
         ordering = ('created',)
 
+    pdb = models.FileField(
+        upload_to='alignments', blank=False, null=False,
+        help_text="The pdb file representing the masses extracted "
+                  "during alignment.")
     xtc = models.FileField(upload_to='alignments', blank=False, null=False)
     group = models.CharField(
         max_length=50,
@@ -186,3 +199,24 @@ def align(xtc_file, tpr_data, group):
             os.remove(xtc_out_name)
 
     return xtc_data
+
+
+def make_pdb(xtc_file, tpr_file, group='System'):
+    """Make a pdb out of an xtc file and a tpr file by aligning.
+    """
+
+    pdb_file = 'PROT_only.pdb'
+
+    args = [
+        'gmx', 'trjconv',
+        '-f', xtc_file,
+        '-s', tpr_file,
+        '-o', pdb_file,
+        '-e', '1',
+        '-pbc', 'whole'
+    ]
+
+    p = subprocess.Popen(args, stdin=subprocess.PIPE,
+                         stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    p.communicate(group.encode('ascii'))
+
