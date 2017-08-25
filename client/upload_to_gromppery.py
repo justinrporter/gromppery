@@ -1,7 +1,7 @@
 import sys
 import argparse
 
-from .gromppery_client import submit_work
+from gromppery_client import submit_work
 
 
 def process_command_line(argv):
@@ -42,10 +42,9 @@ def main(argv=None):
     submit_work(
         gromppery=args.gromppery,
         tag=args.protein,
-        files={[getattr(args, ftype) for ftype in
-                ['xtc', 'cpt', 'gro', 'log', 'edr', 'tpr']]}
+        files={ftype: getattr(args, ftype) for ftype in
+                ['xtc', 'cpt', 'gro', 'log', 'edr', 'tpr']}
         )
-
 
     return 0
 
