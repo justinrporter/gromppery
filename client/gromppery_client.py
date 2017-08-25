@@ -104,14 +104,31 @@ def simulate(tpr_fname, nt=None):
     return files
 
 
-def submit_work(gromppery, tag, files):
+def submit_work(gromppery, tag, files, hostname=None):
+    """Submit a (presumably finished) simulation to the gromppery.
+
+    Parameters
+    ----------
+    gromppery: str
+        URL where the gromppery is found. Usually of the form
+        [IPADDR]:[PORT] or http(s)://[DOMAIN]:[PORT].
+    tag: str
+        Name of the project to which the work unit should be submitted.
+    hostname: str, default=None
+        Name of this host under which to submit the finished simulation.
+        If none, hostname will automatically be determined by
+        platform.node().
+    files: dict
+        Dictionary of paths to files that will be uploaded. Requires
+        keys: ['xtc', 'cpt', 'gro', 'log', 'edr', 'tpr'].
+    """
 
     url = '/'.join([gromppery, 'tprs', tag, 'submit/'])
     print(url)
 
     r = requests.post(
         url,
-        data={'hostname': platform.node()},
+        data={'hostname': platform.node() if hostname is None else hostname},
         files={t: open(files[t], 'rb') for t
                in ['xtc', 'cpt', 'gro', 'log', 'edr', 'tpr']})
 
