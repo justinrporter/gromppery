@@ -43,12 +43,21 @@ class SubmissionAlignmentTest(TestCase):
         self.assertEqual(Alignment.objects.count(), 1)
         aln = Alignment.objects.first()
 
+        self.assertEqual(aln.group, 'Prot-Masses')
+
         self.assertEqual(aln.xtc.path,
                          os.path.join(
                              settings.BASE_DIR, settings.MEDIA_ROOT,
                              'alignments/plcg_sh2_wt/plcg_sh2_wt-000.xtc'))
-
         try:
             valid_xtc(aln.xtc)
         except:
             self.fail("Aligned xtc didn't validate!")
+
+        self.assertEqual(
+            aln.group_pdb.path,
+            os.path.join(
+                settings.BASE_DIR, settings.MEDIA_ROOT,
+                'alignments/plcg_sh2_wt/plcg_sh2_wt-prot-masses.pdb'))
+        self.assertTrue(os.path.isfile(aln.group_pdb.path))
+        self.assertTrue(len(aln.group_pdb.read()) > 0)

@@ -95,17 +95,9 @@ class Submission(models.Model):
         tpr_data = subset_tpr(self.project.grompp().read(), group)
         xtc_data = align(self.xtc.path, tpr_data, 'System')
 
-        prev_aln = Alignment.objects.filter(
-            project__name=self.project.name).first()
+        aln = Alignment.objects.create(submission=self, group=group)
 
-        if prev_aln:
-            pdb = prev_aln.pdb
-        else:
-
-
-        aln = Alignment.objects.create(
-            submission=self, pdb=pdb)
-
+        # Build the xtc file
         fname = '{p}-{i:03d}.xtc'.format(p=self.project.name, i=self.index())
         aln.xtc.save(
             os.path.join(settings.MEDIA_ROOT, 'alignments', self.project.name,
@@ -113,14 +105,33 @@ class Submission(models.Model):
             ContentFile(xtc_data),
             save=True)
 
+        # Build the pdb topology file
+        prev_aln = Alignment.objects.filter(
+            submission__project__name=self.project.name,
+            group=group).first()
+
+        if prev_aln and aln.group_pdb:
+            aln.group_pdb = prev_aln.group_pdb
+        else:
+            # group is 'System' because the TPR is already subsetted to
+            # have the appropriate set of atoms
+            group_pdb = make_pdb(xtc_data, tpr_data, group='System')
+
+            fname = '{p}-{g}.pdb'.format(
+                p=self.project.name, g=group.lower())
+            aln.group_pdb.save(
+                os.path.join(settings.MEDIA_ROOT, 'alignments',
+                             self.project.name, fname),
+                ContentFile(group_pdb))
+
 
 class Alignment(models.Model):
 
     class Meta:
         ordering = ('created',)
 
-    pdb = models.FileField(
-        upload_to='alignments', blank=False, null=False,
+    group_pdb = models.FileField(
+        upload_to='alignments',
         help_text="The pdb file representing the masses extracted "
                   "during alignment.")
     xtc = models.FileField(upload_to='alignments', blank=False, null=False)
@@ -201,22 +212,51 @@ def align(xtc_file, tpr_data, group):
     return xtc_data
 
 
-def make_pdb(xtc_file, tpr_file, group='System'):
-    """Make a pdb out of an xtc file and a tpr file by aligning.
+def make_pdb(xtc_data, tpr_data, group='System', pbc='whole'):
+    """Build a PDB file without periodic boundary conditions out of an
+    XTC and TPR.
     """
 
-    pdb_file = 'PROT_only.pdb'
+    try:
+        # write the binary data to files for GMX to read
+        tpr = tempfile.NamedTemporaryFile(suffix='.tpr')
+        tpr.write(tpr_data)
 
-    args = [
-        'gmx', 'trjconv',
-        '-f', xtc_file,
-        '-s', tpr_file,
-        '-o', pdb_file,
-        '-e', '1',
-        '-pbc', 'whole'
-    ]
+        xtc = tempfile.NamedTemporaryFile(suffix='.xtc')
+        xtc.write(xtc_data)
 
-    p = subprocess.Popen(args, stdin=subprocess.PIPE,
-                         stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-    p.communicate(group.encode('ascii'))
+        # get a temp file name for the output pdb
+        pdb_out = tempfile.NamedTemporaryFile(suffix='.pdb')
+        pdb_out_name = pdb_out.name
+        pdb_out.close()
 
+        args = [
+            'gmx', 'trjconv',
+            '-f', xtc.name,
+            '-s', tpr.name,
+            '-o', pdb_out_name,
+            '-e', '1',
+            '-pbc', pbc
+        ]
+
+        p = subprocess.Popen(
+            args, stdin=subprocess.PIPE,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT)
+
+        out, _ = p.communicate(group.encode('ascii'))
+    finally:
+        xtc.close()
+        tpr.close()
+
+    try:
+        with open(pdb_out_name, 'rb') as f:
+            pdb_data = f.read()
+    except:
+        print(out.decode('ascii'))
+        raise
+    finally:
+        if os.path.isfile(pdb_out_name):
+            os.remove(pdb_out_name)
+
+    return pdb_data
