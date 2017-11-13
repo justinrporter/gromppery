@@ -61,3 +61,37 @@ class SubmissionAlignmentTest(TestCase):
                 'alignments/plcg_sh2_wt/plcg_sh2_wt-prot-masses.pdb'))
         self.assertTrue(os.path.isfile(aln.group_pdb.path))
         self.assertTrue(len(aln.group_pdb.read()) > 0)
+
+    def test_align_two(self):
+
+        sub1 = self.sub
+        sub2 = Submission.objects.create(
+            project=self.project,
+            hostname='debug01',
+            xtc='testdata/submission/plcg_sh2_wt.xtc',
+            log='testdata/submission/plcg_sh2_wt.log',
+            edr='testdata/submission/plcg_sh2_wt.edr',
+            gro='testdata/submission/plcg_sh2_wt.gro',
+            cpt='testdata/submission/plcg_sh2_wt.cpt',
+            tpr='testdata/plcg_sh2_wt.tpr')
+
+        sub1.align('Prot-Masses')
+        sub2.align('Prot-Masses')
+
+        self.assertEqual(Alignment.objects.count(), 2)
+
+        aln0 = Alignment.objects.first()
+        self.assertEqual(aln0.xtc.path,
+                         os.path.join(
+                             settings.BASE_DIR, settings.MEDIA_ROOT,
+                             'alignments/plcg_sh2_wt/plcg_sh2_wt-000.xtc'))
+
+        aln1 = Alignment.objects.last()
+        self.assertEqual(aln1.xtc.path,
+                         os.path.join(
+                             settings.BASE_DIR, settings.MEDIA_ROOT,
+                             'alignments/plcg_sh2_wt/plcg_sh2_wt-001.xtc'))
+
+        self.assertEqual(
+            aln0.group_pdb,
+            aln1.group_pdb)

@@ -95,6 +95,10 @@ class Submission(models.Model):
         tpr_data = subset_tpr(self.project.grompp().read(), group)
         xtc_data = align(self.xtc.path, tpr_data, 'System')
 
+        prev_aln = Alignment.objects.filter(
+            submission__project__name=self.project.name,
+            group=group).first()
+
         aln = Alignment.objects.create(submission=self, group=group)
 
         # Build the xtc file
@@ -105,13 +109,10 @@ class Submission(models.Model):
             ContentFile(xtc_data),
             save=True)
 
-        # Build the pdb topology file
-        prev_aln = Alignment.objects.filter(
-            submission__project__name=self.project.name,
-            group=group).first()
-
-        if prev_aln and aln.group_pdb:
-            aln.group_pdb = prev_aln.group_pdb
+        if prev_aln:
+            if prev_aln.group_pdb.name:
+                aln.group_pdb = prev_aln.group_pdb
+                aln.save()
         else:
             # group is 'System' because the TPR is already subsetted to
             # have the appropriate set of atoms
@@ -193,7 +194,7 @@ def align(xtc_file, tpr_data, group):
             '-f', xtc_file,
             '-s', tpr.name,
             '-o', xtc_out_name,
-            '-pbc', 'whole'
+            '-pbc', 'nojump'
         ]
 
         p = subprocess.Popen(args, stdin=subprocess.PIPE,
@@ -212,7 +213,7 @@ def align(xtc_file, tpr_data, group):
     return xtc_data
 
 
-def make_pdb(xtc_data, tpr_data, group='System', pbc='whole'):
+def make_pdb(xtc_data, tpr_data, group='System', pbc='nojump'):
     """Build a PDB file without periodic boundary conditions out of an
     XTC and TPR.
     """
