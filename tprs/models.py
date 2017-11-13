@@ -101,6 +101,10 @@ class Submission(models.Model):
 
         aln = Alignment.objects.create(submission=self, group=group)
 
+        logger.debug(
+            "Making new aln %s using submission %s.",
+            aln, self)
+
         # Build the xtc file
         fname = '{p}-{i:03d}.xtc'.format(p=self.project.name, i=self.index())
         aln.xtc.save(
@@ -110,10 +114,14 @@ class Submission(models.Model):
             save=True)
 
         if prev_aln:
+            logger.debug('For aln %s, setting group_pdb with old aln %s',
+                         aln, prev_aln)
             if prev_aln.group_pdb.name:
                 aln.group_pdb = prev_aln.group_pdb
                 aln.save()
         else:
+            logger.debug('For aln %s, making new group_pdb', aln)
+
             # group is 'System' because the TPR is already subsetted to
             # have the appropriate set of atoms
             group_pdb = make_pdb(xtc_data, tpr_data, group='System')
