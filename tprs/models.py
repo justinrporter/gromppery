@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 class Project(models.Model):
 
     class Meta:
-        ordering = ('created',)
+        ordering = ('name',)
 
     name = models.CharField(max_length=200, primary_key=True)
     top = models.FileField(upload_to='projects/top')

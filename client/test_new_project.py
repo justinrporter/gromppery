@@ -44,3 +44,6 @@ class ClientTests(StaticLiveServerTestCase):
             self.assertEqual(
                 os.path.basename(getattr(proj, filetype).name),
                 '.'.join([PROJ_NAME, filetype]))
+
+        # should be able to grompp
+        proj.grompp()
