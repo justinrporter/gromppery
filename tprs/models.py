@@ -140,10 +140,12 @@ class Alignment(models.Model):
         ordering = ('created',)
 
     group_pdb = models.FileField(
-        upload_to='alignments',
+        upload_to='alignments', max_length=500,
         help_text="The pdb file representing the masses extracted "
                   "during alignment.")
-    xtc = models.FileField(upload_to='alignments', blank=False, null=False)
+    xtc = models.FileField(
+        upload_to='alignments', max_length=500,
+        blank=False, null=False)
     group = models.CharField(
         max_length=50,
         help_text="The gmx group used to assemble this alignment")
