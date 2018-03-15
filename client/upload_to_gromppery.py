@@ -23,7 +23,7 @@ def process_command_line(argv):
         help="The URL and port where the gromppery can be found.")
     parser.add_argument(
         "--protein", required=True,
-        help="Always choose this protein from the gromppery.")
+        help="Upload the simulation to this project name.")
     parser.add_argument(
         "--hostname", default=None,
         help="Override the current hostname when indicating the host "
