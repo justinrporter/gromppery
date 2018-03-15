@@ -47,6 +47,7 @@ class AlignCommandTestCase(TestCase):
             call_command(
                 'align',
                 '--group', 'NonExistantGroup',
+                '--tpr-subset', 'Prot-Masses',
                 '--name', self.project.name,
                 stdout=out)
 
@@ -57,7 +58,8 @@ class AlignCommandTestCase(TestCase):
         with self.assertRaises(CommandError):
             call_command(
                 'align',
-                '--group', 'Prot-Masses',
+                '--group', 'Protein',
+                '--tpr-subset', 'Prot-Masses',
                 '--name', 'NonExistantProject',
                 stdout=out)
 
@@ -65,8 +67,12 @@ class AlignCommandTestCase(TestCase):
     def test_align(self):
 
         out = io.StringIO()
-        call_command('align', '--name', self.project.name,
-                     '--group', 'Prot-Masses', stdout=out)
+        call_command(
+            'align',
+            '--name', self.project.name,
+            '--tpr-subset', 'Prot-Masses',
+            '--group', 'Protein',
+            stdout=out)
 
         self.assertEqual(Alignment.objects.count(), 1)
         aln = Alignment.objects.first()
@@ -93,8 +99,12 @@ class AlignCommandTestCase(TestCase):
             tpr='testdata/plcg_sh2_wt.tpr')
 
         out = io.StringIO()
-        call_command('align', '--name', self.project.name,
-                     '--group', 'Prot-Masses', stdout=out)
+        call_command(
+            'align',
+            '--name', self.project.name,
+            '--group', 'Protein',
+            '--tpr-subset', 'Prot-Masses',
+            stdout=out)
 
         self.assertEqual(Alignment.objects.count(), 2)
 

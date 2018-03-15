@@ -39,12 +39,12 @@ class SubmissionAlignmentTest(TestCase):
 
     def test_align(self):
 
-        self.sub.align('Prot-Masses')
+        self.sub.align(group='Protein', tpr_subset='Prot-Masses')
 
         self.assertEqual(Alignment.objects.count(), 1)
         aln = Alignment.objects.first()
 
-        self.assertEqual(aln.group, 'Prot-Masses')
+        self.assertEqual(aln.group, 'Protein')
 
         self.assertEqual(aln.xtc.path,
                          os.path.join(
@@ -76,8 +76,8 @@ class SubmissionAlignmentTest(TestCase):
             cpt='testdata/submission/plcg_sh2_wt.cpt',
             tpr='testdata/plcg_sh2_wt.tpr')
 
-        sub1.align('Prot-Masses')
-        sub2.align('Prot-Masses')
+        sub1.align(group='Protein', tpr_subset='Prot-Masses')
+        sub2.align(group='Protein', tpr_subset='Prot-Masses')
 
         self.assertEqual(Alignment.objects.count(), 2)
 

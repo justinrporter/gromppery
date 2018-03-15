@@ -92,16 +92,17 @@ class Submission(models.Model):
             project=self.project,
             created__lt=self.created).count()
 
-    def align(self, group, align_to='Protein'):
+    def align(self, group, tpr_subset):
 
-        tpr_data = util.subset_tpr(self.project.grompp().read(), group)
-        xtc_data = util.align(self.xtc.path, tpr_data, align_to)
+        tpr_data = util.subset_tpr(self.project.grompp().read(), tpr_subset)
+        xtc_data = util.align(self.xtc.path, tpr_data, group)
 
         prev_aln = Alignment.objects.filter(
             submission__project__name=self.project.name,
             group=group).first()
 
-        aln = Alignment.objects.create(submission=self, group=group)
+        aln = Alignment.objects.create(submission=self, group=group,
+                                       tpr_subset=tpr_subset)
 
         logger.debug(
             "Making new aln %s using submission %s.",
@@ -126,10 +127,10 @@ class Submission(models.Model):
 
             # group is 'System' because the TPR is already subsetted to
             # have the appropriate set of atoms
-            group_pdb = util.make_pdb(xtc_data, tpr_data, group=align_to)
+            group_pdb = util.make_pdb(xtc_data, tpr_data, group=group)
 
             fname = '{p}-{g}.pdb'.format(
-                p=self.project.name, g=group.lower())
+                p=self.project.name, g=tpr_subset.lower())
             aln.group_pdb.save(
                 os.path.join(settings.MEDIA_ROOT, 'alignments',
                              self.project.name, fname),
@@ -148,9 +149,13 @@ class Alignment(models.Model):
     xtc = models.FileField(
         upload_to='alignments', max_length=500,
         blank=False, null=False)
+
     group = models.CharField(
         max_length=50,
-        help_text="The gmx group used to assemble this alignment")
+        help_text="The gmx group used to align this alignment")
+    tpr_subset = models.CharField(
+        max_length=50,
+        help_text="Atom subset in the TPR extracted to match XTC atom counts.")
 
     submission = models.OneToOneField(Submission)
     created = models.DateTimeField(auto_now_add=True)

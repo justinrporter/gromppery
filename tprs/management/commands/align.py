@@ -9,8 +9,13 @@ class Command(BaseCommand):
     def add_arguments(self, parser):
         parser.add_argument(
             '--group', required=True, type=str,
+            help="Align atoms using this group. Also controls output.")
+
+        parser.add_argument(
+            '--tpr-subset', required=True, type=str,
             help="Subset tprs using this group. Useful when the atom "
                  "count between TPR and XTC differ.")
+
         parser.add_argument(
             '--name', required=True, type=str,
             help='The name of the project to make alignments for.')
@@ -18,7 +23,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
 
         self.stdout.write("Aligning all projects to group name " +
-                          options['group'])
+                          options['group'] + "after subsetting tprs with group %s" % options['tpr_subset'])
 
         total_proj = Submission.objects.filter(
             project__name=options['name']).count()
@@ -47,4 +52,6 @@ class Command(BaseCommand):
 
         for sub in subs:
             self.stdout.write("Aligning " + str(sub))
-            sub.align(options['group'])
+            sub.align(
+                group=options['group'],
+                tpr_subset=options['tpr_subset'])

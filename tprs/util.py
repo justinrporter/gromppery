@@ -47,6 +47,18 @@ def subset_tpr(tpr_data, group):
 
 
 def align(xtc_file, tpr_data, group):
+    """Align an xtc file to a group of atoms using the topology
+    information in a tpr.
+
+    Parameters
+    ----------
+    xtc_file : bytes-like
+        Trajectory, in xtc format, to align.
+    tpr_data : bytes-like
+        Topology, in tpr format, to use for the alignment.
+    group : string
+        Name of the group to use for output and alignment.
+    """
 
     with tempfile.NamedTemporaryFile(suffix='.tpr') as tpr:
         tpr.write(tpr_data)
