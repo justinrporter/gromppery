@@ -31,7 +31,9 @@ def subset_tpr(tpr_data, group):
         output, _ = p.communicate(group.encode('ascii'))
 
         if p.returncode != 0:
-            print(output.decode('ascii'))
+            logger.error("\n".join(
+                ["gmx convert-tpr failed."]+
+                output.decode('ascii').splitlines()[25:]))
             raise subprocess.CalledProcessError(
                 p.returncode, args, output=output)
 
@@ -126,7 +128,7 @@ def make_pdb(xtc_data, tpr_data, group='System', pbc='nojump'):
         with open(pdb_out_name, 'rb') as f:
             pdb_data = f.read()
     except:
-        print(out.decode('ascii'))
+        logger.error(out.decode('ascii'))
         raise
     finally:
         if os.path.isfile(pdb_out_name):
@@ -136,6 +138,18 @@ def make_pdb(xtc_data, tpr_data, group='System', pbc='nojump'):
 
 
 def get_tpr_groups(tpr_data):
+    """Find the named groups inside a tpr.
+
+    Uses the gmx select command. Writes the given data to a file and
+    passes that path off to gmx-select, and then processes the output
+    with a regular expression.
+
+    Parameters
+    ----------
+    tpr_data : bytes
+        The bytes that represent the TPR file. Actually, anything that
+        can be written by NamedTemporaryFile.write() should do.
+    """
 
     with tempfile.NamedTemporaryFile(suffix='.tpr') as tpr:
         tpr.write(tpr_data)
@@ -161,6 +175,3 @@ def get_tpr_groups(tpr_data):
         groups = re.findall(GROUP_REGEX_STR, error.decode('latin'))
 
     return list(zip(*groups))[1]
-
-
-

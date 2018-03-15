@@ -17,6 +17,8 @@ def check_tpr(data):
 
     with tempfile.NamedTemporaryFile(suffix='.tpr') as f:
         f.write(data)
+        f.flush()
+
         subprocess.run(['gmx', 'check',
                         '-s1', os.path.join('testdata/plcg_sh2_wt.tpr'),
                         '-s2', f.name],
@@ -106,7 +108,7 @@ class ProjectViewTests(APITestCase):
         self.assertEqual(Project.objects.first().name, 'plcg_sh2_wt')
 
         response = self.client.get(reverse('project-list'))
-        self.assertEqual(len(response.data['results']), 1)
+        self.assertEqual(len(response.data), 1)
 
         tprdata = Project.objects.first().grompp()
         self.assertGreater(len(tprdata.read()), 100)

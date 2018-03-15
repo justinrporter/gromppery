@@ -63,12 +63,6 @@ class SubmissionAlignmentTest(TestCase):
         self.assertTrue(os.path.isfile(aln.group_pdb.path))
         self.assertTrue(len(aln.group_pdb.read()) > 0)
 
-    def test_bogus_align_group(self):
-
-        with self.assertRaises(CommandError):
-            self.sub.align('NonExistantGroup')
-
-
     def test_align_two(self):
 
         sub1 = self.sub

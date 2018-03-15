@@ -92,10 +92,10 @@ class Submission(models.Model):
             project=self.project,
             created__lt=self.created).count()
 
-    def align(self, group):
+    def align(self, group, align_to='System'):
 
         tpr_data = util.subset_tpr(self.project.grompp().read(), group)
-        xtc_data = util.align(self.xtc.path, tpr_data, 'System')
+        xtc_data = util.align(self.xtc.path, tpr_data, align_to)
 
         prev_aln = Alignment.objects.filter(
             submission__project__name=self.project.name,
@@ -126,7 +126,7 @@ class Submission(models.Model):
 
             # group is 'System' because the TPR is already subsetted to
             # have the appropriate set of atoms
-            group_pdb = util.make_pdb(xtc_data, tpr_data, group='System')
+            group_pdb = util.make_pdb(xtc_data, tpr_data, group=align_to)
 
             fname = '{p}-{g}.pdb'.format(
                 p=self.project.name, g=group.lower())
