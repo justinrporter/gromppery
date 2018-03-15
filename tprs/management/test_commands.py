@@ -5,6 +5,7 @@ import io
 from django.test import TestCase, override_settings
 from django.conf import settings
 from django.core.management import call_command
+from django.core.management.base import CommandError
 
 from ..seralizers import valid_xtc
 from ..models import Project, Submission, Alignment
@@ -37,6 +38,14 @@ class AlignCommandTestCase(TestCase):
 
     def tearDown(self):
         shutil.rmtree(settings.MEDIA_ROOT)
+
+    def test_bogus_align_group(self):
+
+        out = io.StringIO()
+
+        with self.assertRaises(CommandError):
+            call_command('align', 'NonExistantGroup', stdout=out)
+
 
     def test_align(self):
 

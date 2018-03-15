@@ -3,6 +3,7 @@ import shutil
 
 from django.test import TestCase, override_settings
 from django.conf import settings
+from django.core.management.base import CommandError
 
 from .seralizers import valid_xtc
 from .models import Project, Submission, Alignment
@@ -61,6 +62,12 @@ class SubmissionAlignmentTest(TestCase):
                 'alignments/plcg_sh2_wt/plcg_sh2_wt-prot-masses.pdb'))
         self.assertTrue(os.path.isfile(aln.group_pdb.path))
         self.assertTrue(len(aln.group_pdb.read()) > 0)
+
+    def test_bogus_align_group(self):
+
+        with self.assertRaises(CommandError):
+            self.sub.align('NonExistantGroup')
+
 
     def test_align_two(self):
 
