@@ -64,6 +64,19 @@ class AlignCommandTestCase(TestCase):
                 stdout=out)
 
 
+    def test_bogus_project_tpr_subset(self):
+
+        out = io.StringIO()
+
+        with self.assertRaises(CommandError):
+            call_command(
+                'align',
+                '--group', 'Protein',
+                '--tpr-subset', 'NonExistantGroup',
+                '--name', self.project.name,
+                stdout=out)
+
+
     def test_align(self):
 
         out = io.StringIO()

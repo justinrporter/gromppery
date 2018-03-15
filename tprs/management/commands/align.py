@@ -43,12 +43,16 @@ class Command(BaseCommand):
                           " submissions to align.")
 
         groups = get_tpr_groups(subs[0].project.grompp().read())
-
         if options['group'] not in groups:
             raise CommandError(
                 ('Group "%s" does not exist in tpr for "%s"; availiable '
                  'groups are: %s.') %
                 (options['group'], subs[0].project.name, groups))
+        if options['tpr_subset'] not in groups:
+            raise CommandError(
+                ('Group "%s" does not exist in tpr for "%s"; availiable '
+                 'groups are: %s.') %
+                (options['tpr_subset'], subs[0].project.name, groups))
 
         for sub in subs:
             self.stdout.write("Aligning " + str(sub))
