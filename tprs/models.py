@@ -92,7 +92,7 @@ class Submission(models.Model):
             project=self.project,
             created__lt=self.created).count()
 
-    def align(self, group, align_to='System'):
+    def align(self, group, align_to='Protein'):
 
         tpr_data = util.subset_tpr(self.project.grompp().read(), group)
         xtc_data = util.align(self.xtc.path, tpr_data, align_to)

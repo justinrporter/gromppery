@@ -44,13 +44,29 @@ class AlignCommandTestCase(TestCase):
         out = io.StringIO()
 
         with self.assertRaises(CommandError):
-            call_command('align', 'NonExistantGroup', stdout=out)
+            call_command(
+                'align',
+                '--group', 'NonExistantGroup',
+                '--name', self.project.name,
+                stdout=out)
+
+    def test_bogus_project_name_group(self):
+
+        out = io.StringIO()
+
+        with self.assertRaises(CommandError):
+            call_command(
+                'align',
+                '--group', 'Prot-Masses',
+                '--name', 'NonExistantProject',
+                stdout=out)
 
 
     def test_align(self):
 
         out = io.StringIO()
-        call_command('align', 'Prot-Masses', stdout=out)
+        call_command('align', '--name', self.project.name,
+                     '--group', 'Prot-Masses', stdout=out)
 
         self.assertEqual(Alignment.objects.count(), 1)
         aln = Alignment.objects.first()
@@ -77,7 +93,8 @@ class AlignCommandTestCase(TestCase):
             tpr='testdata/plcg_sh2_wt.tpr')
 
         out = io.StringIO()
-        call_command('align', 'Prot-Masses', stdout=out)
+        call_command('align', '--name', self.project.name,
+                     '--group', 'Prot-Masses', stdout=out)
 
         self.assertEqual(Alignment.objects.count(), 2)
 
