@@ -29,7 +29,8 @@ class Command(BaseCommand):
             project__name=options['name']).count()
 
         if total_proj == 0:
-            raise CommandError("Found 0 projects with name %s" % total_proj)
+            raise CommandError("Found 0 projects with name %s" %
+                               options['name'])
 
         subs = Submission.objects.filter(
             alignment__isnull=True, project__name=options['name'])
