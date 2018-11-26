@@ -61,6 +61,11 @@ class Project(models.Model):
 
         return tpr
 
+    @property
+    def n_submissions(self):
+        # print(dir(self))
+        return self.submission_set.count()
+
 
 class Submission(models.Model):
 
@@ -91,6 +96,12 @@ class Submission(models.Model):
         return Submission.objects.filter(
             project=self.project,
             created__lt=self.created).count()
+
+    @property
+    def has_alignment(self):
+        """Returns true iff this submission has an alignment
+        """
+        return self.alignment is not None
 
     def align(self, group, tpr_subset):
 
@@ -144,6 +155,7 @@ class Alignment(models.Model):
 
     group_pdb = models.FileField(
         upload_to='alignments', max_length=500,
+        verbose_name="Group PDB file",
         help_text="The pdb file representing the masses extracted "
                   "during alignment.")
     xtc = models.FileField(
@@ -162,3 +174,7 @@ class Alignment(models.Model):
 
     def __str__(self):
         return "Alignment of %s" % self.submission
+
+    @property
+    def project(self):
+        return self.submission.project
