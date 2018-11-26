@@ -18,27 +18,32 @@ class ClientTests(StaticLiveServerTestCase):
             os.path.join(settings.BASE_DIR, 'testdata'),
             os.path.join(settings.MEDIA_ROOT, 'testdata'))
 
-        short_mdp = os.path.join(settings.MEDIA_ROOT, 'testdata', 'short.mdp')
-        with open(short_mdp, 'w') as mdp:
-            with open('testdata/plcg_sh2_wt.mdp', 'r') as f:
-                for line in f.readlines():
-                    if 'nsteps' in line.split():
-                        mdp.write('nsteps = 500 ; .01 ns')
-                    elif 'nstxtcout' in line.split():
-                        mdp.write('nstxtcout = 25   ; 10 ps')
-                    elif 'nstenergy' in line.split():
-                        mdp.write('nstenergy = 25   ; 10 ps')
-                    else:
-                        mdp.write(line)
+        try:
+            short_mdp = os.path.join(settings.MEDIA_ROOT, 'testdata',
+                                     'short.mdp')
+            with open(short_mdp, 'w') as mdp:
+                with open('testdata/plcg_sh2_wt.mdp', 'r') as f:
+                    for line in f.readlines():
+                        if 'nsteps' in line.split():
+                            mdp.write('nsteps = 500 ; .01 ns')
+                        elif 'nstxtcout' in line.split():
+                            mdp.write('nstxtcout = 25   ; 10 ps')
+                        elif 'nstenergy' in line.split():
+                            mdp.write('nstenergy = 25   ; 10 ps')
+                        else:
+                            mdp.write(line)
 
-        self.project = Project.objects.create(
-            name='plcg_sh2_wt',
-            gro='testdata/plcg_sh2_wt.gro',
-            mdp=short_mdp,
-            top='testdata/plcg_sh2_wt.top'
+            self.project = Project.objects.create(
+                name='plcg_sh2_wt',
+                gro='testdata/plcg_sh2_wt.gro',
+                mdp=short_mdp,
+                top='testdata/plcg_sh2_wt.top'
             )
 
-        self.scratchpath = tempfile.mkdtemp()
+            self.scratchpath = tempfile.mkdtemp()
+        except:
+            self.tearDown()
+            raise
 
     def tearDown(self):
         shutil.rmtree(settings.MEDIA_ROOT)

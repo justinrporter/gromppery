@@ -20,23 +20,27 @@ class SubmissionViewTests(APITestCase):
             os.path.join(settings.BASE_DIR, 'testdata'),
             os.path.join(settings.MEDIA_ROOT, 'testdata'))
 
-        self.project = Project.objects.create(
-            name='plcg_sh2_wt',
-            gro='testdata/plcg_sh2_wt.gro',
-            mdp='testdata/plcg_sh2_wt.mdp',
-            top='testdata/plcg_sh2_wt.top'
+        try:
+            self.project = Project.objects.create(
+                name='plcg_sh2_wt',
+                gro='testdata/plcg_sh2_wt.gro',
+                mdp='testdata/plcg_sh2_wt.mdp',
+                top='testdata/plcg_sh2_wt.top'
             )
 
-        self.good_data = {
-            'hostname': 'debug01',
-            'xtc': open(self.filepath('plcg_sh2_wt.xtc'), 'rb'),
-            'log': open(self.filepath('plcg_sh2_wt.log'), 'rb'),
-            'edr': open(self.filepath('plcg_sh2_wt.edr'), 'rb'),
-            'gro': open(self.filepath('plcg_sh2_wt.gro'), 'rb'),
-            'cpt': open(self.filepath('plcg_sh2_wt.cpt'), 'rb'),
-            'tpr': open(os.path.join(settings.MEDIA_ROOT,
-                                     'testdata/plcg_sh2_wt.tpr'), 'rb'),
-        }
+            self.good_data = {
+                'hostname': 'debug01',
+                'xtc': open(self.filepath('plcg_sh2_wt.xtc'), 'rb'),
+                'log': open(self.filepath('plcg_sh2_wt.log'), 'rb'),
+                'edr': open(self.filepath('plcg_sh2_wt.edr'), 'rb'),
+                'gro': open(self.filepath('plcg_sh2_wt.gro'), 'rb'),
+                'cpt': open(self.filepath('plcg_sh2_wt.cpt'), 'rb'),
+                'tpr': open(os.path.join(settings.MEDIA_ROOT,
+                                         'testdata/plcg_sh2_wt.tpr'), 'rb'),
+            }
+        except:
+            self.tearDown()
+            raise
 
     def tearDown(self):
         shutil.rmtree(settings.MEDIA_ROOT)
