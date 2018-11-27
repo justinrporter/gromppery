@@ -98,7 +98,7 @@ class ProjectViewTests(APITestCase):
                                      'testdata/plcg_sh2_wt.top'), 'rb'),
             'gro': open(os.path.join(settings.MEDIA_ROOT,
                                      'testdata/plcg_sh2_wt.gro'), 'rb'),
-            }
+        }
 
         response = self.client.post(url, data, format='multipart')
 
@@ -108,7 +108,7 @@ class ProjectViewTests(APITestCase):
         self.assertEqual(Project.objects.first().name, 'plcg_sh2_wt')
 
         response = self.client.get(reverse('project-list'))
-        self.assertEqual(len(response.data), 1)
+        self.assertEqual(len(response.data['results']), 1)
 
         tprdata = Project.objects.first().grompp()
         self.assertGreater(len(tprdata.read()), 100)
