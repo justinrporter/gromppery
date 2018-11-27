@@ -1,0 +1,4 @@
+# Ignore everything in this directory
+plcg_sh2_wt*
+# Except this file
+!.gitignore
