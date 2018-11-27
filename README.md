@@ -20,3 +20,18 @@ $ python ~/projects/gromppery/client/gromppery_client.py \
 ```
 
 This command will connect to a gromppery running at `localhost:43443`, download a work unit from the project called `lambda-repressor`, run it in a directory like `~/sim/YEAR-MONTH-DAY-HASH`, and return it. Because the `--iterations` flag is 2, it will then repeat this process again. If `--iterations` is not specified, it will run until terminated.
+
+## Running the Tests
+
+First, you need to build some of the test data.
+
+```bash
+cd testdata/
+make
+```
+
+Then, you'll be able to run the tests normally
+
+```bash
+./manage.py test
+```
