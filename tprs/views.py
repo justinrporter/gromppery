@@ -1,3 +1,5 @@
+import logging
+
 from django.http import HttpResponse
 from django.urls import reverse
 from django.shortcuts import get_object_or_404
@@ -10,6 +12,8 @@ from rest_framework.response import Response
 
 from . import seralizers
 from . import models
+
+logger = logging.getLogger(__name__)
 
 
 @api_view(['GET'])
@@ -39,7 +43,11 @@ class ProjectViewSet(viewsets.ModelViewSet):
         request.data['project'] = reverse('project-detail', args=(pk,))
         s = seralizers.SubmissionSerializer(data=request.data)
 
-        s.is_valid(raise_exception=True)
+        try:
+            s.is_valid(raise_exception=True)
+        except Exception as e:
+            logger.error(e)
+            raise
         s.save()
 
         return Response({}, status=status.HTTP_201_CREATED)

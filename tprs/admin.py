@@ -5,6 +5,7 @@ from .models import Project, Submission, Alignment
 
 @admin.register(Project)
 class ProjectAdmin(admin.ModelAdmin):
+    # date_hierarchy = ('created',)
     list_display = ('__str__', 'n_submissions', 'created', 'mdp', 'top', 'gro')
     search_fields = ('name', 'mdp', 'top', 'gro')
     readonly_fields = ('created',)
@@ -12,9 +13,10 @@ class ProjectAdmin(admin.ModelAdmin):
 
 @admin.register(Submission)
 class SubmissionAdmin(admin.ModelAdmin):
-    list_display = ('__str__', 'project', 'index', 'created', 'alignment')
-    list_filter = ('hostname',
-                   'project__name',
+    # date_hierarchy = ('created',)
+    list_display = ('__str__', 'hostname', 'project', 'index',
+                    'created', 'alignment')
+    list_filter = ('hostname', 'project__name',
                    ('alignment', admin.BooleanFieldListFilter),)
     search_fields = ('project__name', 'hostname', 'project__mdp',
                      'project__top', 'project__gro',)
@@ -23,10 +25,13 @@ class SubmissionAdmin(admin.ModelAdmin):
 
 @admin.register(Alignment)
 class AlignmentAdmin(admin.ModelAdmin):
+    # date_hierarchy = ('created',)
     list_display = ('__str__', 'project', 'tpr_subset', 'group',
                     'created', 'group_pdb')
     list_filter = ('submission__project__name',
                    'submission__hostname')
+    lookup_allowed = ('submission__project__name',
+                      'submission__hostname')
     search_fields = ('tpr_subset', 'group', 'group_pdb',
                      'submission__project__name',
                      'submission__hostname',
