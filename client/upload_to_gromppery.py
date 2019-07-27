@@ -1,5 +1,6 @@
 import sys
 import argparse
+import os
 
 from gromppery_client import submit_work
 
@@ -13,7 +14,8 @@ def process_command_line(argv):
         description='Upload a bundle of files to the gromppery as a '
                     'Submission (usually a finished simulation).')
 
-    for ftype in ['xtc', 'cpt', 'gro', 'log', 'edr', 'tpr']:
+    ftypes = ['xtc', 'cpt', 'gro', 'log', 'edr', 'tpr']
+    for ftype in ftypes:
         parser.add_argument(
             "--%s" % ftype, required=True,
             help="The GROMACS %s file to upload to the gromppery." % ftype)
@@ -30,6 +32,9 @@ def process_command_line(argv):
              "that ran the simulation.")
 
     args = parser.parse_args(argv[1:])
+
+    for ftype in ftypes:
+        assert os.path.isfile(getattr(args, ftype))
 
     return args
 
