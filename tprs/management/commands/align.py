@@ -3,6 +3,7 @@ from django.core.management.base import BaseCommand, CommandError
 from tprs.models import Submission
 from tprs.util import get_tpr_groups
 
+
 class Command(BaseCommand):
     help = 'Creates Alignments for Submissions without them.'
 
@@ -23,7 +24,9 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
 
         self.stdout.write("Aligning all projects to group name " +
-                          options['group'] + "after subsetting tprs with group %s" % options['tpr_subset'])
+                          options['group'] +
+                          "after subsetting tprs with group %s" %
+                          options['tpr_subset'])
 
         total_proj = Submission.objects.filter(
             project__name=options['name']).count()
